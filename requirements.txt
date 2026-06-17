@@ -1,0 +1,12 @@
+# Requirements for shopping_agent
+# Install with: pip install -r requirements.txt
+
+streamlit
+python-dotenv
+langchain
+langchain-core
+langchain-groq
+numpy
+torch
+transformers
+Pillow

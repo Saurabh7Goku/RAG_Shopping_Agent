@@ -1,0 +1,198 @@
+{
+  "model_name": "openai/clip-vit-base-patch32",
+  "signatures": [
+    {
+      "product_id": 1,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_1.png",
+      "mtime_ns": 1781676751856633000,
+      "size": 30158
+    },
+    {
+      "product_id": 2,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_2.png",
+      "mtime_ns": 1781676751880539300,
+      "size": 27514
+    },
+    {
+      "product_id": 3,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_3.png",
+      "mtime_ns": 1781679132643926500,
+      "size": 30440
+    },
+    {
+      "product_id": 4,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_4.png",
+      "mtime_ns": 1781676751929273600,
+      "size": 25658
+    },
+    {
+      "product_id": 5,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_5.png",
+      "mtime_ns": 1781676751952014700,
+      "size": 33531
+    },
+    {
+      "product_id": 6,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_6.png",
+      "mtime_ns": 1781676751972771300,
+      "size": 31771
+    },
+    {
+      "product_id": 7,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_7.png",
+      "mtime_ns": 1781676751993751900,
+      "size": 29679
+    },
+    {
+      "product_id": 8,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_8.png",
+      "mtime_ns": 1781676752021553300,
+      "size": 27409
+    },
+    {
+      "product_id": 9,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_9.png",
+      "mtime_ns": 1781676752042242600,
+      "size": 33356
+    },
+    {
+      "product_id": 10,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_10.png",
+      "mtime_ns": 1781676752063296100,
+      "size": 25786
+    },
+    {
+      "product_id": 11,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_11.png",
+      "mtime_ns": 1781676752083667500,
+      "size": 30349
+    },
+    {
+      "product_id": 12,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_12.png",
+      "mtime_ns": 1781676752103134400,
+      "size": 27073
+    },
+    {
+      "product_id": 13,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_13.png",
+      "mtime_ns": 1781676752127277200,
+      "size": 29379
+    },
+    {
+      "product_id": 14,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_14.png",
+      "mtime_ns": 1781676752145765800,
+      "size": 28453
+    },
+    {
+      "product_id": 15,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_15.png",
+      "mtime_ns": 1781676752166351300,
+      "size": 30640
+    },
+    {
+      "product_id": 16,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_16.png",
+      "mtime_ns": 1781676752187906400,
+      "size": 25796
+    },
+    {
+      "product_id": 17,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_17.png",
+      "mtime_ns": 1781676752208120200,
+      "size": 30518
+    },
+    {
+      "product_id": 18,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_18.png",
+      "mtime_ns": 1781676752235710800,
+      "size": 29870
+    },
+    {
+      "product_id": 19,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_19.png",
+      "mtime_ns": 1781676752256593600,
+      "size": 33447
+    },
+    {
+      "product_id": 20,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_20.png",
+      "mtime_ns": 1781676752277446600,
+      "size": 30666
+    },
+    {
+      "product_id": 21,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_21.png",
+      "mtime_ns": 1781676752297437900,
+      "size": 29333
+    },
+    {
+      "product_id": 22,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_22.png",
+      "mtime_ns": 1781676752319070100,
+      "size": 25400
+    },
+    {
+      "product_id": 23,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_23.png",
+      "mtime_ns": 1781676752339904900,
+      "size": 33701
+    },
+    {
+      "product_id": 24,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_24.png",
+      "mtime_ns": 1781676752360754500,
+      "size": 34031
+    },
+    {
+      "product_id": 25,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_25.png",
+      "mtime_ns": 1781676752381561900,
+      "size": 29488
+    },
+    {
+      "product_id": 26,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_26.png",
+      "mtime_ns": 1781676752402431200,
+      "size": 29511
+    },
+    {
+      "product_id": 27,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_27.png",
+      "mtime_ns": 1781676752424056700,
+      "size": 33663
+    },
+    {
+      "product_id": 28,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_28.png",
+      "mtime_ns": 1781676752444902200,
+      "size": 25586
+    },
+    {
+      "product_id": 29,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_29.png",
+      "mtime_ns": 1781676752463484200,
+      "size": 31754
+    },
+    {
+      "product_id": 30,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_30.png",
+      "mtime_ns": 1781676752487297500,
+      "size": 26756
+    },
+    {
+      "product_id": 31,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_31.png",
+      "mtime_ns": 1781676752506061200,
+      "size": 31039
+    },
+    {
+      "product_id": 32,
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_32.png",
+      "mtime_ns": 1781679265785872800,
+      "size": 26737
+    }
+  ],
+  "product_count": 32
+}
