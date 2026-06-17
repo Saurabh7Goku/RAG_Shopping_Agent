@@ -959,6 +959,7 @@ def visual_similarity_search(
     max_price: Optional[float] = None,
     is_organic: Optional[bool] = None,
     category: Optional[str] = None,
+    similarity_threshold: float = 0.5,
 ) -> list[dict]:
     bootstrap_data()
 
@@ -996,6 +997,10 @@ def visual_similarity_search(
 
         product_vector = np.array(product["embedding"], dtype=np.float32)
         similarity = _cosine_similarity(query_vector, product_vector)
+
+        # Only include products that meet the similarity threshold
+        if similarity < similarity_threshold:
+            continue
 
         ranked.append(
             {
