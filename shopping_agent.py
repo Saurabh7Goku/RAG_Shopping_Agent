@@ -2,11 +2,13 @@ import base64
 import json
 import os
 import sqlite3
+import time
 import textwrap
 from pathlib import Path
 from typing import Optional
 
 import numpy as np
+import requests
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.tools import tool
@@ -30,9 +32,13 @@ BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "store.db"
 RESOURCE_DIR = BASE_DIR / "resources"
 GENERATED_DIR = RESOURCE_DIR / "generated"
+CURATED_PHOTO_DIR = RESOURCE_DIR / "curated_photos"
+CURATED_PHOTO_MANIFEST_PATH = RESOURCE_DIR / "curated_photo_manifest.json"
 EMBEDDING_MODEL_NAME = "openai/clip-vit-base-patch32"
 EMBEDDING_CACHE_PATH = RESOURCE_DIR / "embedding_cache.npz"
 EMBEDDING_CACHE_META_PATH = RESOURCE_DIR / "embedding_cache_meta.json"
+OPEN_FOOD_FACTS_SEARCH_URL = "https://world.openfoodfacts.org/cgi/search.pl"
+OPEN_FOOD_FACTS_HEADERS = {"User-Agent": "shopping_agent/1.0 (Open Food Facts photo importer)"}
 
 _EMBEDDING_MODEL = None
 _EMBEDDING_PROCESSOR = None
@@ -45,6 +51,7 @@ _EMBEDDING_CACHE_LAST_REFRESH: dict[str, int] = {
     "updated": 0,
     "removed": 0,
 }
+_CURATED_PHOTO_CACHE_READY = False
 
 llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
 vision_llm = ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0)
@@ -83,6 +90,209 @@ def _embedding_components():
         _EMBEDDING_MODEL.eval()
 
     return _EMBEDDING_MODEL, _EMBEDDING_PROCESSOR
+
+
+def _normalize_text(text: str) -> str:
+    return " ".join((text or "").lower().replace("-", " ").split())
+
+
+def _product_query_candidates(name: str, category: str, is_organic: bool) -> list[str]:
+    product = _normalize_text(name)
+    category = _normalize_text(category)
+    candidates: list[str] = []
+
+    if product:
+        candidates.append(product)
+    if category and category not in candidates:
+        candidates.append(category)
+
+    special_map = {
+        "honey": ["manuka honey", "organic honey", "honey"],
+        "oil": ["extra virgin olive oil", "olive oil", "oil"],
+        "nuts": ["almonds", "cashews", "mixed nuts", "nuts"],
+        "seeds": ["chia seeds", "seeds"],
+        "grains": ["rolled oats", "oats", "quinoa", "brown rice", "grains"],
+        "tea": ["black tea", "green tea", "tea"],
+        "coffee": ["espresso", "ground coffee", "coffee beans", "coffee"],
+        "snacks": ["granola", "dried mango", "trail mix", "snacks"],
+        "dairy alt": ["almond milk", "oat milk", "soy drink", "coconut milk", "milk"],
+    }
+    for key, extras in special_map.items():
+        if key in product or key in category:
+            for term in extras:
+                if term not in candidates:
+                    candidates.append(term)
+
+    if is_organic and "organic" not in product:
+        candidates = [f"organic {term}" for term in candidates] + candidates
+
+    return candidates[:8]
+
+
+def _off_search_products(query: str, page_size: int = 10, retries: int = 3) -> list[dict]:
+    params = {
+        "search_terms": query,
+        "search_simple": 1,
+        "action": "process",
+        "json": 1,
+        "page_size": page_size,
+        "fields": "code,product_name,brands,image_front_url,categories",
+    }
+    last_error: Optional[Exception] = None
+    for attempt in range(retries):
+        try:
+            response = requests.get(
+                OPEN_FOOD_FACTS_SEARCH_URL,
+                params=params,
+                headers=OPEN_FOOD_FACTS_HEADERS,
+                timeout=30,
+            )
+            if response.status_code == 200:
+                payload = response.json()
+                return payload.get("products", [])
+            last_error = RuntimeError(f"Open Food Facts search returned HTTP {response.status_code}")
+        except Exception as exc:
+            last_error = exc
+        time.sleep(0.8 * (attempt + 1))
+    if last_error:
+        return []
+    return []
+
+
+def _score_off_candidate(candidate: dict, query: str, expected_name: str, expected_category: str, is_organic: bool) -> float:
+    name = _normalize_text(candidate.get("product_name", ""))
+    brands = _normalize_text(candidate.get("brands", ""))
+    categories = _normalize_text(candidate.get("categories", ""))
+    query = _normalize_text(query)
+    expected_name = _normalize_text(expected_name)
+    expected_category = _normalize_text(expected_category)
+
+    score = 0.0
+    if candidate.get("image_front_url"):
+        score += 2.0
+    if expected_name and expected_name in name:
+        score += 5.0
+    if expected_category and expected_category in categories:
+        score += 2.5
+    for token in query.split():
+        if token in name:
+            score += 0.8
+        if token in categories:
+            score += 0.6
+        if token in brands:
+            score += 0.3
+    if is_organic and "organic" in (name + " " + categories):
+        score += 1.0
+    return score
+
+
+def _download_file(url: str, destination: Path) -> bool:
+    try:
+        response = requests.get(url, headers=OPEN_FOOD_FACTS_HEADERS, timeout=45)
+        if response.status_code != 200:
+            return False
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(response.content)
+        return True
+    except Exception:
+        return False
+
+
+def _load_curated_photo_manifest() -> dict[str, dict]:
+    if not CURATED_PHOTO_MANIFEST_PATH.exists():
+        return {}
+    try:
+        return json.loads(CURATED_PHOTO_MANIFEST_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _save_curated_photo_manifest(manifest: dict[str, dict]) -> None:
+    CURATED_PHOTO_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CURATED_PHOTO_MANIFEST_PATH.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
+def _ensure_curated_product_photos() -> dict[int, dict]:
+    global _CURATED_PHOTO_CACHE_READY
+    if _CURATED_PHOTO_CACHE_READY:
+        manifest = _load_curated_photo_manifest()
+        return {int(pid): data for pid, data in manifest.items()}
+
+    conn = _connect()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name, category, is_organic, image_path FROM products ORDER BY id")
+    rows = cursor.fetchall()
+    conn.close()
+
+    manifest: dict[str, dict] = _load_curated_photo_manifest()
+    updated_manifest: dict[str, dict] = dict(manifest)
+    curated_map: dict[int, dict] = {}
+
+    for row in rows:
+        product_id = int(row["id"])
+        image_path = row["image_path"]
+        if image_path and image_path.startswith(str(CURATED_PHOTO_DIR)) and os.path.exists(image_path):
+            existing = manifest.get(str(product_id))
+            if existing:
+                curated_map[product_id] = existing
+                continue
+
+        candidates: list[dict] = []
+        for query in _product_query_candidates(row["name"], row["category"] or "", bool(row["is_organic"])):
+            results = _off_search_products(query)
+            if results:
+                candidates.extend({"query": query, "result": result} for result in results[:8])
+            if len(candidates) >= 8:
+                break
+
+        best_choice: Optional[dict] = None
+        best_score = -1.0
+        for candidate in candidates:
+            result = candidate["result"]
+            score = _score_off_candidate(
+                result,
+                candidate["query"],
+                row["name"],
+                row["category"] or "",
+                bool(row["is_organic"]),
+            )
+            if score > best_score and result.get("image_front_url"):
+                best_choice = {
+                    "query": candidate["query"],
+                    "code": result.get("code"),
+                    "product_name": result.get("product_name"),
+                    "brands": result.get("brands"),
+                    "image_front_url": result.get("image_front_url"),
+                    "categories": result.get("categories"),
+                    "score": score,
+                }
+                best_score = score
+
+        if best_choice and best_choice.get("image_front_url"):
+            file_ext = os.path.splitext(best_choice["image_front_url"].split("?")[0])[1] or ".jpg"
+            local_path = CURATED_PHOTO_DIR / f"product_{product_id}{file_ext}"
+            if not local_path.exists():
+                _download_file(best_choice["image_front_url"], local_path)
+            if local_path.exists():
+                curated_map[product_id] = {
+                    "product_id": product_id,
+                    "local_path": str(local_path),
+                    "source_query": best_choice["query"],
+                    "source_product_name": best_choice["product_name"],
+                    "source_brand": best_choice["brands"],
+                    "source_code": best_choice["code"],
+                    "source_url": best_choice["image_front_url"],
+                    "source_dataset": "Open Food Facts",
+                    "score": round(float(best_choice["score"]), 3),
+                }
+                updated_manifest[str(product_id)] = curated_map[product_id]
+
+    _save_curated_photo_manifest(updated_manifest)
+    _CURATED_PHOTO_CACHE_READY = True
+    return curated_map
 
 
 def _cosine_similarity(left: np.ndarray, right: np.ndarray) -> float:
@@ -518,6 +728,11 @@ def ensure_database() -> None:
     )
 
     _ensure_column(cursor, "products", "image_path", "TEXT")
+    _ensure_column(cursor, "products", "photo_source_name", "TEXT")
+    _ensure_column(cursor, "products", "photo_source_brand", "TEXT")
+    _ensure_column(cursor, "products", "photo_source_code", "TEXT")
+    _ensure_column(cursor, "products", "photo_source_url", "TEXT")
+    _ensure_column(cursor, "products", "photo_source_dataset", "TEXT")
     _ensure_embeddings_table(cursor)
 
     conn.commit()
@@ -530,9 +745,57 @@ def seed_product_images() -> None:
     cursor.execute("SELECT id, name, category, is_organic FROM products ORDER BY id")
     rows = cursor.fetchall()
 
+    curated_map = _ensure_curated_product_photos()
+
     for row in rows:
-        image_path = _generate_product_image(row["id"], row["name"], row["category"] or "", bool(row["is_organic"]))
-        cursor.execute("UPDATE products SET image_path = ? WHERE id = ?", (image_path, row["id"]))
+        product_id = int(row["id"])
+        curated = curated_map.get(product_id)
+        if curated and os.path.exists(curated["local_path"]):
+            cursor.execute(
+                """
+                UPDATE products
+                SET image_path = ?,
+                    photo_source_name = ?,
+                    photo_source_brand = ?,
+                    photo_source_code = ?,
+                    photo_source_url = ?,
+                    photo_source_dataset = ?
+                WHERE id = ?
+                """,
+                (
+                    curated["local_path"],
+                    curated.get("source_product_name"),
+                    curated.get("source_brand"),
+                    curated.get("source_code"),
+                    curated.get("source_url"),
+                    curated.get("source_dataset"),
+                    product_id,
+                ),
+            )
+            continue
+
+        image_path = _generate_product_image(product_id, row["name"], row["category"] or "", bool(row["is_organic"]))
+        cursor.execute(
+            """
+            UPDATE products
+            SET image_path = ?,
+                photo_source_name = ?,
+                photo_source_brand = ?,
+                photo_source_code = ?,
+                photo_source_url = ?,
+                photo_source_dataset = ?
+            WHERE id = ?
+            """,
+            (
+                image_path,
+                None,
+                None,
+                None,
+                None,
+                "generated",
+                product_id,
+            ),
+        )
 
     conn.commit()
     conn.close()
@@ -564,7 +827,8 @@ def get_product(product_id: int) -> Optional[dict]:
     cursor = conn.cursor()
     cursor.execute(
         """
-        SELECT id, name, category, price, description, is_organic, image_path
+        SELECT id, name, category, price, description, is_organic, image_path,
+               photo_source_name, photo_source_brand, photo_source_code, photo_source_url, photo_source_dataset
         FROM products
         WHERE id = ?
         """,
@@ -584,6 +848,11 @@ def get_product(product_id: int) -> Optional[dict]:
         "description": row["description"],
         "is_organic": bool(row["is_organic"]),
         "image_path": row["image_path"],
+        "photo_source_name": row["photo_source_name"],
+        "photo_source_brand": row["photo_source_brand"],
+        "photo_source_code": row["photo_source_code"],
+        "photo_source_url": row["photo_source_url"],
+        "photo_source_dataset": row["photo_source_dataset"],
         "average_rating": rating_info["average_rating"],
         "review_count": rating_info["review_count"],
     }
@@ -601,7 +870,8 @@ def fetch_products(
     cursor = conn.cursor()
     cursor.execute(
         """
-        SELECT id, name, category, price, description, is_organic, image_path
+        SELECT id, name, category, price, description, is_organic, image_path,
+               photo_source_name, photo_source_brand, photo_source_code, photo_source_url, photo_source_dataset
         FROM products
         ORDER BY id
         """
@@ -666,6 +936,11 @@ def fetch_products(
                 "description": row["description"],
                 "is_organic": product_is_organic,
                 "image_path": row["image_path"],
+                "photo_source_name": row["photo_source_name"],
+                "photo_source_brand": row["photo_source_brand"],
+                "photo_source_code": row["photo_source_code"],
+                "photo_source_url": row["photo_source_url"],
+                "photo_source_dataset": row["photo_source_dataset"],
                 "average_rating": rating["average_rating"],
                 "review_count": rating["review_count"],
                 "relevance_score": round(relevance, 3),

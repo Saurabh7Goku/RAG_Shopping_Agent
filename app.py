@@ -333,6 +333,9 @@ def render_product_card(product: dict, key_prefix: str) -> None:
             f'<div class="product-price">${float(product["price"]):.2f}</div>',
             unsafe_allow_html=True,
         )
+        source_label = product.get("photo_source_brand") or product.get("photo_source_name") or product.get("photo_source_dataset")
+        if source_label:
+            st.caption(f"Photo source: {source_label}")
         st.caption(product["description"])
 
         left, right = st.columns(2)
@@ -425,6 +428,9 @@ def render_suggested_products(message: str) -> None:
                     st.image(product["image_path"], use_container_width=True)
                 st.markdown(f"**{product['name']}**")
                 st.caption(f"${float(product['price']):.2f} • {render_rating(float(product['average_rating']), int(product['review_count']))}")
+                source_label = product.get("photo_source_brand") or product.get("photo_source_name") or product.get("photo_source_dataset")
+                if source_label:
+                    st.caption(f"Photo source: {source_label}")
                 if st.button(f"Add {product['id']} to cart", key=f"quick_add_{product['id']}"):
                     add_to_cart(int(product["id"]))
                     st.rerun()

@@ -3,195 +3,195 @@
   "signatures": [
     {
       "product_id": 1,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_1.png",
-      "mtime_ns": 1781676751856633000,
-      "size": 30158
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_1.jpg",
+      "mtime_ns": 1781679738679163800,
+      "size": 14151
     },
     {
       "product_id": 2,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_2.png",
-      "mtime_ns": 1781676751880539300,
-      "size": 27514
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_2.jpg",
+      "mtime_ns": 1781679764160058800,
+      "size": 25449
     },
     {
       "product_id": 3,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_3.png",
-      "mtime_ns": 1781679132643926500,
-      "size": 30440
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_3.jpg",
+      "mtime_ns": 1781679780194590700,
+      "size": 20166
     },
     {
       "product_id": 4,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_4.png",
-      "mtime_ns": 1781676751929273600,
-      "size": 25658
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_4.jpg",
+      "mtime_ns": 1781679790837567500,
+      "size": 9787
     },
     {
       "product_id": 5,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_5.png",
-      "mtime_ns": 1781676751952014700,
-      "size": 33531
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_5.jpg",
+      "mtime_ns": 1781679800030994800,
+      "size": 17689
     },
     {
       "product_id": 6,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_6.png",
-      "mtime_ns": 1781676751972771300,
-      "size": 31771
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_6.jpg",
+      "mtime_ns": 1781679809903078400,
+      "size": 19004
     },
     {
       "product_id": 7,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_7.png",
-      "mtime_ns": 1781676751993751900,
-      "size": 29679
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_7.jpg",
+      "mtime_ns": 1781679820732186900,
+      "size": 33042
     },
     {
       "product_id": 8,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_8.png",
-      "mtime_ns": 1781676752021553300,
-      "size": 27409
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_8.jpg",
+      "mtime_ns": 1781679832854402600,
+      "size": 25283
     },
     {
       "product_id": 9,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_9.png",
-      "mtime_ns": 1781676752042242600,
-      "size": 33356
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_9.jpg",
+      "mtime_ns": 1781679843236209600,
+      "size": 11615
     },
     {
       "product_id": 10,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_10.png",
-      "mtime_ns": 1781676752063296100,
-      "size": 25786
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_10.jpg",
+      "mtime_ns": 1781679857605129300,
+      "size": 17672
     },
     {
       "product_id": 11,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_11.png",
-      "mtime_ns": 1781676752083667500,
-      "size": 30349
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_11.jpg",
+      "mtime_ns": 1781679868033345400,
+      "size": 25974
     },
     {
       "product_id": 12,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_12.png",
-      "mtime_ns": 1781676752103134400,
-      "size": 27073
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_12.jpg",
+      "mtime_ns": 1781679895345947100,
+      "size": 35640
     },
     {
       "product_id": 13,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_13.png",
-      "mtime_ns": 1781676752127277200,
-      "size": 29379
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_13.jpg",
+      "mtime_ns": 1781679912018872400,
+      "size": 14068
     },
     {
       "product_id": 14,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_14.png",
-      "mtime_ns": 1781676752145765800,
-      "size": 28453
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_14.jpg",
+      "mtime_ns": 1781679921616222900,
+      "size": 29345
     },
     {
       "product_id": 15,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_15.png",
-      "mtime_ns": 1781676752166351300,
-      "size": 30640
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_15.jpg",
+      "mtime_ns": 1781679932539198700,
+      "size": 24237
     },
     {
       "product_id": 16,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_16.png",
-      "mtime_ns": 1781676752187906400,
-      "size": 25796
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_16.jpg",
+      "mtime_ns": 1781679944151288200,
+      "size": 23326
     },
     {
       "product_id": 17,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_17.png",
-      "mtime_ns": 1781676752208120200,
-      "size": 30518
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_17.jpg",
+      "mtime_ns": 1781679959749092000,
+      "size": 21174
     },
     {
       "product_id": 18,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_18.png",
-      "mtime_ns": 1781676752235710800,
-      "size": 29870
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_18.jpg",
+      "mtime_ns": 1781679967677312000,
+      "size": 38428
     },
     {
       "product_id": 19,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_19.png",
-      "mtime_ns": 1781676752256593600,
-      "size": 33447
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_19.jpg",
+      "mtime_ns": 1781679975803192300,
+      "size": 31322
     },
     {
       "product_id": 20,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_20.png",
-      "mtime_ns": 1781676752277446600,
-      "size": 30666
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_20.jpg",
+      "mtime_ns": 1781679985494236300,
+      "size": 23771
     },
     {
       "product_id": 21,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_21.png",
-      "mtime_ns": 1781676752297437900,
-      "size": 29333
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_21.jpg",
+      "mtime_ns": 1781680010749751600,
+      "size": 14761
     },
     {
       "product_id": 22,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_22.png",
-      "mtime_ns": 1781676752319070100,
-      "size": 25400
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_22.jpg",
+      "mtime_ns": 1781680021993231100,
+      "size": 21425
     },
     {
       "product_id": 23,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_23.png",
-      "mtime_ns": 1781676752339904900,
-      "size": 33701
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_23.jpg",
+      "mtime_ns": 1781680034064074900,
+      "size": 35150
     },
     {
       "product_id": 24,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_24.png",
-      "mtime_ns": 1781676752360754500,
-      "size": 34031
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_24.jpg",
+      "mtime_ns": 1781680043922788000,
+      "size": 21942
     },
     {
       "product_id": 25,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_25.png",
-      "mtime_ns": 1781676752381561900,
-      "size": 29488
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_25.jpg",
+      "mtime_ns": 1781680051941916400,
+      "size": 31936
     },
     {
       "product_id": 26,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_26.png",
-      "mtime_ns": 1781676752402431200,
-      "size": 29511
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_26.jpg",
+      "mtime_ns": 1781680059833793500,
+      "size": 13539
     },
     {
       "product_id": 27,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_27.png",
-      "mtime_ns": 1781676752424056700,
-      "size": 33663
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_27.jpg",
+      "mtime_ns": 1781680079464939400,
+      "size": 17874
     },
     {
       "product_id": 28,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_28.png",
-      "mtime_ns": 1781676752444902200,
-      "size": 25586
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_28.jpg",
+      "mtime_ns": 1781680087451376000,
+      "size": 32212
     },
     {
       "product_id": 29,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_29.png",
-      "mtime_ns": 1781676752463484200,
-      "size": 31754
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_29.jpg",
+      "mtime_ns": 1781680101282875500,
+      "size": 13117
     },
     {
       "product_id": 30,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_30.png",
-      "mtime_ns": 1781676752487297500,
-      "size": 26756
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_30.jpg",
+      "mtime_ns": 1781680110374699500,
+      "size": 13114
     },
     {
       "product_id": 31,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_31.png",
-      "mtime_ns": 1781676752506061200,
-      "size": 31039
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_31.jpg",
+      "mtime_ns": 1781680121386699300,
+      "size": 31849
     },
     {
       "product_id": 32,
-      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\generated\\product_32.png",
-      "mtime_ns": 1781679265785872800,
-      "size": 26737
+      "image_path": "C:\\Saurabh\\Projects\\shopping_agent\\resources\\curated_photos\\product_32.jpg",
+      "mtime_ns": 1781680141749350500,
+      "size": 25226
     }
   ],
   "product_count": 32
