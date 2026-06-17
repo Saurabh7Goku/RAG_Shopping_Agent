@@ -4,9 +4,11 @@ import os
 import sqlite3
 import time
 import textwrap
+import chromadb
+from chromadb.config import Settings
 from pathlib import Path
 from typing import Optional
-
+import streamlit as st
 import numpy as np
 import requests
 from dotenv import load_dotenv
@@ -40,6 +42,9 @@ EMBEDDING_CACHE_META_PATH = RESOURCE_DIR / "embedding_cache_meta.json"
 OPEN_FOOD_FACTS_SEARCH_URL = "https://world.openfoodfacts.org/cgi/search.pl"
 OPEN_FOOD_FACTS_HEADERS = {"User-Agent": "shopping_agent/1.0 (Open Food Facts photo importer)"}
 
+CHROMA_PERSIST_DIR = BASE_DIR / "chroma"
+CHROMA_COLLECTION = "product_embeddings"
+
 _EMBEDDING_MODEL = None
 _EMBEDDING_PROCESSOR = None
 _EMBEDDING_DEVICE = "cpu"
@@ -53,7 +58,7 @@ _EMBEDDING_CACHE_LAST_REFRESH: dict[str, int] = {
 }
 _CURATED_PHOTO_CACHE_READY = False
 
-llm = ChatGroq(model="qwen/qwen3-32b", temperature=0)
+llm = ChatGroq(model="qwen/qwen3-32b", temperature=0, api_key=st.secrets["GROQ_API_KEY"])
 vision_llm = ChatGroq(model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0)
 
 
@@ -61,6 +66,31 @@ def _connect() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def get_chroma_client():
+    return chromadb.PersistentClient(path=str(CHROMA_PERSIST_DIR), settings=Settings(allow_reset=True))
+
+
+def get_chroma_collection():
+    client = get_chroma_client()
+    try:
+        collection = client.get_collection(name=CHROMA_COLLECTION)
+    except Exception:
+        collection = client.create_collection(name=CHROMA_COLLECTION, metadata={"hnsw:space": "cosine"})
+        if collection.count() == 0:
+            embed_map = _load_product_embeddings()
+            ids = []
+            embeddings = []
+            metadatas = []
+            for prod in embed_map:
+                if prod.get("embedding"):
+                    ids.append(str(prod["id"]))
+                    embeddings.append(prod["embedding"])
+                    metadatas.append({"name": prod["name"], "category": prod["category"]})
+            if ids:
+                collection.add(ids=ids, embeddings=embeddings, metadatas=metadatas)
+    return collection
 
 
 def _column_exists(cursor: sqlite3.Cursor, table: str, column: str) -> bool:
@@ -961,11 +991,16 @@ def visual_similarity_search(
     category: Optional[str] = None,
     similarity_threshold: float = 0.5,
 ) -> list[dict]:
-    bootstrap_data()
+    """Search for visually similar products using the persisted ChromaDB collection.
 
+    The function encodes the uploaded image with CLIP, queries the ChromaDB collection for
+    the nearest embeddings, and then applies the same catalogue filters (price, organic,
+    category) as the original implementation.
+    """
+    # Encode the query image
     query_embedding = _encode_image(image_path)
     if query_embedding is None:
-        # Graceful fallback if the embedding stack is unavailable.
+        # Fallback to keyword search when embeddings are unavailable
         return fetch_products(
             query="",
             max_price=max_price,
@@ -974,58 +1009,84 @@ def visual_similarity_search(
             limit=top_k,
         )
 
-    products = _load_product_embeddings()
-    query_vector = np.array(query_embedding, dtype=np.float32)
-    category = category.lower().strip() if category else None
-    ratings = get_ratings_for_products([product["id"] for product in products])
-    ratings_map = {item["product_id"]: item for item in ratings}
+    # Ensure the Chroma collection exists and is populated
+    collection = get_chroma_collection()
 
-    ranked: list[dict] = []
-    for product in products:
-        if not product.get("embedding"):
-            continue
+    # Query Chroma for a larger pool (extra margin) to allow post‑filtering
+    raw_results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=top_k * 3,  # over‑fetch to filter later
+        include=["documents", "distances", "metadatas", "ids"],
+    )
 
-        product_category = (product["category"] or "").lower()
-        if max_price is not None and float(product["price"]) > float(max_price):
-            continue
-        if is_organic is True and not product["is_organic"]:
-            continue
-        if is_organic is False and product["is_organic"]:
-            continue
-        if category and category not in product_category:
-            continue
+    # Extract IDs and distances (Chroma returns cosine distance by default)
+    ids = raw_results.get("ids", [[]])[0]
+    distances = raw_results.get("distances", [[]])[0]
+    metadatas = raw_results.get("metadatas", [[]])[0]
 
-        product_vector = np.array(product["embedding"], dtype=np.float32)
-        similarity = _cosine_similarity(query_vector, product_vector)
-
-        # Only include products that meet the similarity threshold
+    # Convert to similarity score (1 - distance) and assemble candidate dicts
+    candidates = []
+    for pid, dist, meta in zip(ids, distances, metadatas):
+        similarity = max(0.0, 1.0 - float(dist))
         if similarity < similarity_threshold:
             continue
+        candidates.append({
+            "id": int(pid),
+            "similarity_score": round(similarity, 4),
+            "meta": meta,
+        })
 
-        ranked.append(
-            {
-                "id": product["id"],
-                "name": product["name"],
-                "category": product["category"],
-                "price": product["price"],
-                "description": product["description"],
-                "is_organic": product["is_organic"],
-                "image_path": product["image_path"],
-                "average_rating": ratings_map.get(product["id"], {}).get("average_rating", 0.0),
-                "review_count": ratings_map.get(product["id"], {}).get("review_count", 0),
-                "similarity_score": round(similarity, 4),
-                "match_type": "visual_embedding",
-            }
-        )
+    # Load full product rows from SQLite for the remaining filters
+    conn = _connect()
+    cur = conn.cursor()
+    filtered = []
+    for cand in candidates:
+        cur.execute("SELECT * FROM products WHERE id = ?", (cand["id"],))
+        row = cur.fetchone()
+        if not row:
+            continue
+        # Apply price / organic / category filters
+        price = float(row["price"]) if row["price"] is not None else None
+        if max_price is not None and (price is None or price > max_price):
+            continue
+        prod_is_organic = bool(row["is_organic"])
+        if is_organic is True and not prod_is_organic:
+            continue
+        if is_organic is False and prod_is_organic:
+            continue
+        prod_category = (row["category"] or "").lower()
+        if category and category.lower() not in prod_category:
+            continue
 
-    ranked.sort(
+        # Pull rating info
+        rating = get_product_rating(row["id"]).get("average_rating", 0.0)
+        review_count = get_product_rating(row["id"]).get("review_count", 0)
+
+        filtered.append({
+            "id": row["id"],
+            "name": row["name"],
+            "category": row["category"],
+            "price": row["price"],
+            "description": row["description"],
+            "is_organic": prod_is_organic,
+            "image_path": row["image_path"],
+            "average_rating": rating,
+            "review_count": review_count,
+            "similarity_score": cand["similarity_score"],
+            "match_type": "visual_embedding",
+        })
+
+    conn.close()
+
+    # Sort by similarity, then rating, then price (same logic as previous version)
+    filtered.sort(
         key=lambda item: (
             -float(item["similarity_score"]),
             -float(item["average_rating"]),
             float(item["price"]),
         )
     )
-    return ranked[:top_k]
+    return filtered[:top_k]
 
 
 def checkout_product(product_id: int) -> str:
